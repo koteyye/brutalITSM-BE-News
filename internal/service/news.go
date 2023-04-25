@@ -1,8 +1,8 @@
 package service
 
 import (
-	"brutalITSMbeNews/internal/models"
-	"brutalITSMbeNews/internal/postgres"
+	"github.com/koteyye/brutalITSM-BE-News/internal/models"
+	"github.com/koteyye/brutalITSM-BE-News/internal/postgres"
 	"github.com/minio/minio-go/v7"
 )
 
@@ -31,8 +31,7 @@ func (n NewsService) DeleteNews(newsId string) (bool, error) {
 }
 
 func (n NewsService) GetNewsList() ([]models.NewsList, error) {
-	//TODO implement me
-	panic("implement me")
+	return n.repo.GetNewsList()
 }
 
 func (n NewsService) GetNewsById(newsId string) (models.NewsList, error) {

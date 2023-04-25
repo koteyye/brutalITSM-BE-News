@@ -1,8 +1,8 @@
 package service
 
 import (
-	"brutalITSMbeNews/internal/models"
-	"brutalITSMbeNews/internal/postgres"
+	"github.com/koteyye/brutalITSM-BE-News/internal/models"
+	"github.com/koteyye/brutalITSM-BE-News/internal/postgres"
 	"github.com/minio/minio-go/v7"
 )
 

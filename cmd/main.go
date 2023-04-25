@@ -1,10 +1,12 @@
 package cmd
 
 import (
-	"brutalITSMbeNews/internal/postgres"
-	"brutalITSMbeNews/internal/s3"
-	"brutalITSMbeNews/internal/service"
 	"github.com/joho/godotenv"
+	"github.com/koteyye/brutalITSM-BE-News/internal/postgres"
+	rest "github.com/koteyye/brutalITSM-BE-News/internal/rest"
+	"github.com/koteyye/brutalITSM-BE-News/internal/s3"
+	"github.com/koteyye/brutalITSM-BE-News/internal/service"
+	brutalitsm "github.com/koteyye/brutalITSM-BE-News/server"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -25,7 +27,7 @@ func main() {
 	//init internal
 	repos := postgres.NewRepository(db)
 	services := service.NewService(repos, minio)
-	handler := http.NewHttp(services)
+	handler := rest.NewRest(services)
 
 	restSrv := new(brutalitsm.Server)
 	if err := restSrv.Run(viper.GetString("port"), handler.InitRoutes()); err != nil {

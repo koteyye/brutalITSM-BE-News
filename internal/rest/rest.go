@@ -1,9 +1,9 @@
 package rest
 
 import (
-	"brutalITSMbeNews/internal/service"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/koteyye/brutalITSM-BE-News/internal/service"
 	"time"
 )
 
@@ -31,7 +31,7 @@ func (r *Rest) InitRoutes() *gin.Engine {
 	{
 		news := api.Group("/news")
 		{
-			news.GET("/newsList")
+			news.GET("/newsList", r.getNews)
 			news.GET("/news/:id")
 		}
 		newsEditor := api.Group("/newsEditor")

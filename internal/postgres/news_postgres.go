@@ -1,8 +1,8 @@
 package postgres
 
 import (
-	"brutalITSMbeNews/internal/models"
 	"github.com/jmoiron/sqlx"
+	"github.com/koteyye/brutalITSM-BE-News/internal/models"
 )
 
 type NewsPostgres struct {
