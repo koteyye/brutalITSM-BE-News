@@ -1,42 +1,125 @@
-package cmd
+package main
 
 import (
-	"github.com/joho/godotenv"
+	"context"
+	"fmt"
+	"github.com/koteyye/brutalITSM-BE-News/config"
+	grpcHandler "github.com/koteyye/brutalITSM-BE-News/internal/grpc"
 	"github.com/koteyye/brutalITSM-BE-News/internal/postgres"
-	rest "github.com/koteyye/brutalITSM-BE-News/internal/rest"
-	"github.com/koteyye/brutalITSM-BE-News/internal/s3"
+	"github.com/koteyye/brutalITSM-BE-News/internal/rest"
 	"github.com/koteyye/brutalITSM-BE-News/internal/service"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"log"
+	"os/signal"
+	"syscall"
+	"time"
+
+	_ "github.com/lib/pq"
+
+	"github.com/jmoiron/sqlx"
+	"github.com/joho/godotenv"
 	brutalitsm "github.com/koteyye/brutalITSM-BE-News/server"
+	pb "github.com/koteyye/brutalITSM-BE-Users/proto"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
+	"os"
+
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 func main() {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
-	if err := initConfig(); err != nil {
-		logrus.Fatalf("error initializing configs: %s", err.Error())
-	}
+
 	if err := godotenv.Load(); err != nil {
 		logrus.Fatalf("Error loading env variables %s", err.Error())
 	}
+
+	cfg, err := config.GetConfig()
+	if err != nil {
+		logrus.Fatalf("Get config: %v", err)
+	}
+
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	defer cancel()
+
 	// Postgres Client
-	db, _ := postgres.InitPostgres()
+	db, err := newPostgres(ctx, cfg.Storages.Postgres)
+	if err != nil {
+		logrus.Fatalf("Can't get postgres client pool: %v", err)
+	}
+
 	// Minio Client
-	minio, _ := s3.InitMinioClient()
+	endpoint := cfg.Storages.Minio.URL
+	accessKeyId := os.Getenv("KEY_ID")
+	secretAccessKey := os.Getenv("SECRET_KEY")
+	useSSL := false
+
+	minioClient, err := minio.New(endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(accessKeyId, secretAccessKey, ""),
+		Secure: useSSL,
+	})
+	if err != nil {
+		logrus.Fatalln(err)
+	}
+
+	logrus.Printf("%#v\n", minioClient) // minio is now set up
+
+	// GRPC Client
+	connect, err := grpc.Dial(cfg.Endpoints.GrpcUserService, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer connect.Close()
+
+	grpcClient := pb.NewUserServiceClient(connect)
 
 	//init internal
 	repos := postgres.NewRepository(db)
-	services := service.NewService(repos, minio)
+	gHandler := grpcHandler.NewGrpcHandler(grpcClient)
+	services := service.NewService(repos, minioClient, gHandler)
 	handler := rest.NewRest(services)
 
-	restSrv := new(brutalitsm.Server)
-	if err := restSrv.Run(viper.GetString("port"), handler.InitRoutes()); err != nil {
-		logrus.Fatalf("error occuped while runing http server: %s", err.Error())
+	restServer := new(brutalitsm.Server)
+	if err := restServer.Run(cfg.Server.HTTP.Listen, handler.InitRoutes()); err != nil {
+		logrus.Fatalf("Error occuped while runing Rest server :%s", err.Error())
 	}
 }
 
-func initConfig() error {
-	viper.AddConfigPath("server")
-	viper.SetConfigName("config")
-	return viper.ReadInConfig()
+func newPostgres(ctx context.Context, cfg *config.DBConfig) (*sqlx.DB, error) {
+	db, err := sqlx.Open("postgres", cfg.DSN)
+	if err != nil {
+		return nil, fmt.Errorf("can't create db: %w", err)
+	}
+
+	dbCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	err = db.PingContext(dbCtx)
+	if err != nil {
+		return nil, fmt.Errorf("can't ping db: %w", err)
+	}
+
+	logrus.Infoln("Migration started")
+	m, err := migrate.New("file://db/migrations",
+		cfg.DSN)
+	if err != nil {
+		logrus.Fatalf("Migrate error: %v", err)
+	}
+	if err := m.Up(); err != nil {
+		switch err {
+		case nil:
+			break
+		case migrate.ErrNoChange:
+			logrus.Info("Migrate no change")
+			return db, nil
+		default:
+			logrus.Fatalf("Migrate error: %v", err)
+			return db, err
+		}
+	}
+	return db, nil
 }

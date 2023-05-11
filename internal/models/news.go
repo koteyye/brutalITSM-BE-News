@@ -39,17 +39,12 @@ type NewsList struct {
 	CreatedAt    NullTime `json:"createdAt" db:"created_at"`
 	UpdatedAt    NullTime `json:"updatedAt" db:"updated_at"`
 	DeletedAt    NullTime `json:"deletedAt" db:"deleted_at"`
-	UserCreated  *User    `json:"userCreated" db:"userCreated"`
-	UserUpdated  *User    `json:"userUpdated" db:"userUpdated"`
-	UserDeleted  *User    `json:"userDeleted" db:"userDeleted"`
+	UserCreated  string   `json:"userCreated" db:"user_created"`
+	UserUpdated  string   `json:"userUpdated" db:"user_updated"`
+	UserDeleted  *string  `json:"userDeleted" db:"user_deleted"`
 	State        string   `json:"state" db:"state"`
-	PreviewImage *Files   `json:"previewImage" db:"previewImage"`
-	ContentFile  *Files   `json:"contentFile" db:"contentFile"`
-}
-
-type User struct {
-	UserId   string `json:"userId"`
-	FullName string `json:"fullName"`
+	PreviewImage string   `json:"previewImage" db:"preview_image"`
+	ContentFile  string   `json:"contentFile" db:"content_file"`
 }
 
 type Files struct {
@@ -79,4 +74,23 @@ func (f Files) Scan(val any) error {
 	default:
 		return fmt.Errorf("unsupported type: %T", v)
 	}
+}
+
+type ResponseNewsList struct {
+	Id           string   `json:"id"`
+	Title        string   `json:"title"`
+	Description  string   `json:"description"`
+	CreatedAt    NullTime `json:"createdAt"`
+	UpdatedAt    NullTime `json:"updatedAt"`
+	UserCreated  string   `json:"userCreated"`
+	UserUpdated  string   `json:"userUpdated"`
+	State        string   `json:"state" db:"state"`
+	PreviewImage string   `json:"previewImage"`
+	ContentFile  string   `json:"contentFile"`
+}
+
+type Avatar struct {
+	MimeType   string `json:"mimeType"`
+	BucketName string `json:"bucketName"`
+	FileName   string `json:"fileName"`
 }

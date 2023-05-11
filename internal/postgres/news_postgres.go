@@ -1,8 +1,10 @@
 package postgres
 
 import (
+	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	"github.com/koteyye/brutalITSM-BE-News/internal/models"
+	"github.com/sirupsen/logrus"
 )
 
 type NewsPostgres struct {
@@ -29,8 +31,15 @@ func (n NewsPostgres) DeleteNews(newsId string) (bool, error) {
 }
 
 func (n NewsPostgres) GetNewsList() ([]models.NewsList, error) {
-	//TODO implement me
-	panic("implement me")
+	var newsList []models.NewsList
+
+	query := sq.Select("*").From("news")
+	sql, _, err := query.ToSql()
+	if err != nil {
+		logrus.Fatalf("SQL query not builde %v", err)
+	}
+	err1 := n.db.Select(&newsList, sql)
+	return newsList, err1
 }
 
 func (n NewsPostgres) GetNewsById(newsId string) (models.NewsList, error) {
