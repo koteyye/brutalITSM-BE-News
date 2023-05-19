@@ -15,12 +15,18 @@ type News interface {
 	GetNewsById(newsId string) (models.NewsList, error)
 }
 
+type Permissions interface {
+	GetMe(token string) (models.UserSingle, error)
+}
+
 type Service struct {
 	News
+	Permissions
 }
 
 func NewService(repos *postgres.Repository, s3 *minio.Client, gHandler *grpcHandler.GrpcHandler) *Service {
 	return &Service{
-		News: NewNewsService(repos.News, s3, gHandler),
+		News:        NewNewsService(repos.News, s3, gHandler),
+		Permissions: NewPermissionService(gHandler),
 	}
 }

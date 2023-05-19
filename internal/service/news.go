@@ -6,6 +6,7 @@ import (
 	"github.com/koteyye/brutalITSM-BE-News/internal/models"
 	"github.com/koteyye/brutalITSM-BE-News/internal/postgres"
 	"github.com/minio/minio-go/v7"
+	"golang.org/x/exp/maps"
 )
 
 type NewsService struct {
@@ -57,16 +58,14 @@ func (n NewsService) GetNewsById(newsId string) (models.NewsList, error) {
 	panic("implement me")
 }
 
-func unique(arr []string) []string {
-	inResult := make(map[string]bool)
-	var result []string
-	for _, str := range arr {
-		if _, ok := inResult[str]; !ok {
-			inResult[str] = true
-			result = append(result, str)
-		}
+func unique[k comparable](arr []k) []k {
+	uniqueMap := make(map[k]struct{})
+
+	for _, arrEl := range arr {
+		uniqueMap[arrEl] = struct{}{}
 	}
-	return result
+
+	return maps.Keys(uniqueMap)
 }
 
 func responseUserList(dbData []models.NewsList, userData []models.UserList) []models.ResponseNewsList {

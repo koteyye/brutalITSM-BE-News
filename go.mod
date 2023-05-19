@@ -14,6 +14,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.52
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.15.0
+	golang.org/x/exp v0.0.0-20230515195305-f3d0a9c9a5cc
 	google.golang.org/grpc v1.54.0
 	gopkg.in/yaml.v3 v3.0.1
 )

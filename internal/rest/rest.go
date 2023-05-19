@@ -27,9 +27,9 @@ func (r *Rest) InitRoutes() *gin.Engine {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	api := router.Group("/api")
+	api := router.Group("/api", r.getMe)
 	{
-		news := api.Group("/news")
+		news := api.Group("/news", r.setNewsRead, r.checkPermission)
 		{
 			news.GET("/newsList", r.getNews)
 			news.GET("/news/:id")

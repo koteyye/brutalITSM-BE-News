@@ -18,3 +18,7 @@ func (r *Rest) getNews(c *gin.Context) {
 
 	c.JSON(http.StatusOK, result)
 }
+
+//func (r *Rest) createNews(c *gin.Context) {
+//	c.JSON()
+//}

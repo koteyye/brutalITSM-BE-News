@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/koteyye/brutalITSM-BE-News/internal/models"
 	pb "github.com/koteyye/brutalITSM-BE-Users/proto"
-	"github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -17,12 +16,13 @@ func NewGrpcUserHandler(grpcUserHandler pb.UserServiceClient) *GrpcUserHandler {
 }
 
 func (g GrpcUserHandler) GetUserByToken(token string) (models.UserSingle, error) {
+
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
 	res, err := g.grpcUserHandler.GetByToken(ctx, &pb.RequestToken{Token: token})
 	if err != nil {
-		logrus.Fatalf("Could not auth: %v", err)
+		return models.UserSingle{}, err
 	}
 	return models.UserSingle{
 		Id:          res.Id,
