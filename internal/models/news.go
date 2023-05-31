@@ -51,9 +51,9 @@ type NewsList struct {
 }
 
 type Files struct {
-	MimeType   string `json:"mimeType" db:"mimeType"`
-	BucketName string `json:"bucketName" db:"bucketName"`
-	FileName   string `json:"fileName" db:"fileName"`
+	MimeType   *string `json:"mimeType" db:"mimeType"`
+	BucketName *string `json:"bucketName" db:"bucketName"`
+	FileName   *string `json:"fileName" db:"fileName"`
 }
 
 func (f *Files) Scan(val any) error {
