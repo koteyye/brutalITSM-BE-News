@@ -95,23 +95,31 @@ func responseUserList(dbData []models.NewsList, userData []models.UserList) []mo
 				Id:       fmt.Sprintf("%s", userDataMap[resNews.UserCreated].Id),
 				FullName: fmt.Sprintf("%s %s %s", userDataMap[resNews.UserCreated].LastName, userDataMap[resNews.UserCreated].FirstName, userDataMap[resNews.UserCreated].SurName),
 				Avatar: &models.AvatarImg{
-					BucketName: fmt.Sprintf("%s", userDataMap[resNews.UserCreated].BucketName),
-					FileName:   fmt.Sprintf("%s", userDataMap[resNews.UserCreated].FileName),
-					MimeType:   fmt.Sprintf("%s", userDataMap[resNews.UserCreated].MimeType),
+					BucketName: userDataMap[resNews.UserCreated].BucketName,
+					FileName:   userDataMap[resNews.UserCreated].FileName,
+					MimeType:   userDataMap[resNews.UserCreated].MimeType,
 				},
 			},
 			UserUpdated: &models.User{
 				Id:       fmt.Sprintf("%s", userDataMap[resNews.UserUpdated].Id),
 				FullName: fmt.Sprintf("%s %s %s", userDataMap[resNews.UserUpdated].LastName, userDataMap[resNews.UserUpdated].FirstName, userDataMap[resNews.UserUpdated].SurName),
 				Avatar: &models.AvatarImg{
-					BucketName: fmt.Sprintf("%s", userDataMap[resNews.UserUpdated].BucketName),
-					FileName:   fmt.Sprintf("%s", userDataMap[resNews.UserUpdated].FileName),
-					MimeType:   fmt.Sprintf("%s", userDataMap[resNews.UserUpdated].MimeType),
+					BucketName: userDataMap[resNews.UserUpdated].BucketName,
+					FileName:   userDataMap[resNews.UserUpdated].FileName,
+					MimeType:   userDataMap[resNews.UserUpdated].MimeType,
 				},
 			},
-			State:        resNews.State,
-			PreviewImage: resNews.PreviewImage,
-			ContentFile:  resNews.ContentFile,
+			State: resNews.State,
+			PreviewImage: &models.Files{
+				BucketName: resNews.PreviewImage.BucketName,
+				FileName:   resNews.PreviewImage.FileName,
+				MimeType:   resNews.PreviewImage.MimeType,
+			},
+			ContentFile: &models.Files{
+				BucketName: resNews.ContentFile.BucketName,
+				FileName:   resNews.ContentFile.FileName,
+				MimeType:   resNews.ContentFile.MimeType,
+			},
 		})
 	}
 	return resNewsList

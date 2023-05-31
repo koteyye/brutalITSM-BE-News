@@ -12,6 +12,11 @@ type NullTime struct {
 	Valid bool
 }
 
+type NullString struct {
+	String string
+	Valid  bool
+}
+
 func (nt *NullTime) Scan(value interface{}) error {
 	nt.Time, nt.Valid = value.(time.Time)
 	return nil
@@ -41,8 +46,8 @@ type NewsList struct {
 	UserCreated  string   `json:"userCreated" db:"user_created"`
 	UserUpdated  string   `json:"userUpdated" db:"user_updated"`
 	State        string   `json:"state" db:"state"`
-	PreviewImage *Files   `json:"previewImage" db:"previewImage"`
-	ContentFile  *Files   `json:"contentFile" db:"contentFile"`
+	PreviewImage *Files   `json:"previewImage" db:"previewimage"`
+	ContentFile  *Files   `json:"contentFile" db:"contentfile"`
 }
 
 type Files struct {
@@ -51,7 +56,7 @@ type Files struct {
 	FileName   string `json:"fileName" db:"fileName"`
 }
 
-func (f Files) Scan(val any) error {
+func (f *Files) Scan(val any) error {
 	switch v := val.(type) {
 	case []byte:
 		err := json.Unmarshal(v, &f)
@@ -84,9 +89,9 @@ type ResponseNewsList struct {
 }
 
 type AvatarImg struct {
-	MimeType   string `json:"mimeType"`
-	BucketName string `json:"bucketName"`
-	FileName   string `json:"fileName"`
+	MimeType   *string `json:"mimeType"`
+	BucketName *string `json:"bucketName"`
+	FileName   *string `json:"fileName"`
 }
 
 type User struct {
