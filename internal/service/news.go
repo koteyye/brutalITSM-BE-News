@@ -86,13 +86,29 @@ func responseUserList(dbData []models.NewsList, userData []models.UserList) []mo
 
 	for _, resNews := range dbData {
 		resNewsList = append(resNewsList, models.ResponseNewsList{
-			Id:           resNews.Id,
-			Title:        resNews.Title,
-			Description:  resNews.Description,
-			CreatedAt:    resNews.CreatedAt,
-			UpdatedAt:    resNews.UpdatedAt,
-			UserCreated:  fmt.Sprintf("%s %s %s", userDataMap[resNews.UserCreated].LastName, userDataMap[resNews.UserCreated].FirstName, userDataMap[resNews.UserCreated].SurName),
-			UserUpdated:  fmt.Sprintf("%s %s %s", userDataMap[resNews.UserCreated].LastName, userDataMap[resNews.UserCreated].FirstName, userDataMap[resNews.UserCreated].SurName),
+			Id:          resNews.Id,
+			Title:       resNews.Title,
+			Description: resNews.Description,
+			CreatedAt:   resNews.CreatedAt.Time,
+			UpdatedAt:   resNews.UpdatedAt.Time,
+			UserCreated: &models.User{
+				Id:       fmt.Sprintf("%s", userDataMap[resNews.UserCreated].Id),
+				FullName: fmt.Sprintf("%s %s %s", userDataMap[resNews.UserCreated].LastName, userDataMap[resNews.UserCreated].FirstName, userDataMap[resNews.UserCreated].SurName),
+				Avatar: &models.AvatarImg{
+					BucketName: fmt.Sprintf("%s", userDataMap[resNews.UserCreated].BucketName),
+					FileName:   fmt.Sprintf("%s", userDataMap[resNews.UserCreated].FileName),
+					MimeType:   fmt.Sprintf("%s", userDataMap[resNews.UserCreated].MimeType),
+				},
+			},
+			UserUpdated: &models.User{
+				Id:       fmt.Sprintf("%s", userDataMap[resNews.UserUpdated].Id),
+				FullName: fmt.Sprintf("%s %s %s", userDataMap[resNews.UserUpdated].LastName, userDataMap[resNews.UserUpdated].FirstName, userDataMap[resNews.UserUpdated].SurName),
+				Avatar: &models.AvatarImg{
+					BucketName: fmt.Sprintf("%s", userDataMap[resNews.UserUpdated].BucketName),
+					FileName:   fmt.Sprintf("%s", userDataMap[resNews.UserUpdated].FileName),
+					MimeType:   fmt.Sprintf("%s", userDataMap[resNews.UserUpdated].MimeType),
+				},
+			},
 			State:        resNews.State,
 			PreviewImage: resNews.PreviewImage,
 			ContentFile:  resNews.ContentFile,

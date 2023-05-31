@@ -33,7 +33,7 @@ func (n NewsPostgres) DeleteNews(newsId string) (bool, error) {
 func (n NewsPostgres) GetNewsList() ([]models.NewsList, error) {
 	var newsList []models.NewsList
 
-	query := sq.Select("*").From("news")
+	query := sq.Select("*").From("getNewsList()")
 	sql, _, err := query.ToSql()
 	if err != nil {
 		logrus.Fatalf("SQL query not builde %v", err)

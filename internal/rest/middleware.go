@@ -3,7 +3,9 @@ package rest
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/koteyye/brutalITSM-BE-News/internal/models"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/exp/slices"
+	"google.golang.org/grpc/status"
 	"net/http"
 	"strings"
 )
@@ -28,10 +30,16 @@ func (r *Rest) getMe(c *gin.Context) {
 
 	user, err := r.services.GetMe(headerParts[1])
 	if err != nil {
-		if strings.Contains(err.Error(), "token is expired") {
+		errCode, ok := status.FromError(err)
+		if !ok {
+			logrus.Fatalf("Error response from GRPC User Service")
+		}
+		if errCode.Code() == 16 {
+			newErrorResponse(c, http.StatusUnauthorized, "Invalid token")
+		} else if errCode.Code() == 7 {
 			newErrorResponse(c, http.StatusUnauthorized, "token is expired")
 		} else {
-			newErrorResponse(c, http.StatusUnauthorized, "Invalid token")
+			newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		}
 	}
 

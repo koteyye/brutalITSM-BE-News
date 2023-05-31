@@ -38,23 +38,17 @@ type NewsList struct {
 	Description  string   `json:"description" db:"description"`
 	CreatedAt    NullTime `json:"createdAt" db:"created_at"`
 	UpdatedAt    NullTime `json:"updatedAt" db:"updated_at"`
-	DeletedAt    NullTime `json:"deletedAt" db:"deleted_at"`
 	UserCreated  string   `json:"userCreated" db:"user_created"`
 	UserUpdated  string   `json:"userUpdated" db:"user_updated"`
-	UserDeleted  *string  `json:"userDeleted" db:"user_deleted"`
 	State        string   `json:"state" db:"state"`
-	PreviewImage string   `json:"previewImage" db:"preview_image"`
-	ContentFile  string   `json:"contentFile" db:"content_file"`
+	PreviewImage *Files   `json:"previewImage" db:"previewImage"`
+	ContentFile  *Files   `json:"contentFile" db:"contentFile"`
 }
 
 type Files struct {
-	Id         string   `json:"id" db:"id"`
-	MimeType   string   `json:"mimeType" db:"mime_type"`
-	BucketName string   `json:"bucketName" db:"bucket_name"`
-	FileName   string   `json:"fileName" db:"file_name"`
-	CreatedAt  NullTime `json:"createdAt" db:"created_at"`
-	UpdatedAt  NullTime `json:"updatedAt" db:"updated_at"`
-	DeletedAt  NullTime `json:"deletedAt" db:"deleted_at"`
+	MimeType   string `json:"mimeType" db:"mimeType"`
+	BucketName string `json:"bucketName" db:"bucketName"`
+	FileName   string `json:"fileName" db:"fileName"`
 }
 
 func (f Files) Scan(val any) error {
@@ -77,20 +71,26 @@ func (f Files) Scan(val any) error {
 }
 
 type ResponseNewsList struct {
-	Id           string   `json:"id"`
-	Title        string   `json:"title"`
-	Description  string   `json:"description"`
-	CreatedAt    NullTime `json:"createdAt"`
-	UpdatedAt    NullTime `json:"updatedAt"`
-	UserCreated  string   `json:"userCreated"`
-	UserUpdated  string   `json:"userUpdated"`
-	State        string   `json:"state" db:"state"`
-	PreviewImage string   `json:"previewImage"`
-	ContentFile  string   `json:"contentFile"`
+	Id           string    `json:"id"`
+	Title        string    `json:"title"`
+	Description  string    `json:"description"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
+	UserCreated  *User     `json:"userCreated"`
+	UserUpdated  *User     `json:"userUpdated"`
+	State        string    `json:"state" db:"state"`
+	PreviewImage *Files    `json:"previewImage"`
+	ContentFile  *Files    `json:"contentFile"`
 }
 
-type Avatar struct {
+type AvatarImg struct {
 	MimeType   string `json:"mimeType"`
 	BucketName string `json:"bucketName"`
 	FileName   string `json:"fileName"`
+}
+
+type User struct {
+	Id       string     `json:"id"`
+	FullName string     `json:"fullName"`
+	Avatar   *AvatarImg `json:"avatar"`
 }
