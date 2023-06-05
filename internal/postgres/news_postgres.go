@@ -15,9 +15,26 @@ func NewNewsPostgres(db *sqlx.DB) *NewsPostgres {
 	return &NewsPostgres{db: db}
 }
 
-func (n NewsPostgres) CreateNews(news models.News) (string, error) {
+func (n NewsPostgres) UploadNewsFile(fileId string) (string, error) {
 	//TODO implement me
 	panic("implement me")
+}
+
+func (n NewsPostgres) CreateNews(news models.News, userId string) (string, error) {
+	var id string
+	query := sq.Insert("news").
+		Columns("title", "description", "user_created", "user_updated").
+		Values(news, userId, userId).
+		Suffix("RETURNING \"id\"")
+	sql, args, err := query.ToSql()
+	if err != nil {
+		logrus.Fatalf("SQL query not builde %v", err)
+	}
+	row := n.db.QueryRow(sql, args, userId)
+	if err := row.Scan(&id); err != nil {
+		return "", err
+	}
+	return id, nil
 }
 
 func (n NewsPostgres) UpdateNews(newsId string, news models.News) (string, error) {

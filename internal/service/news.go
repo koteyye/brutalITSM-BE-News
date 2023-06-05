@@ -1,12 +1,15 @@
 package service
 
 import (
+	"context"
 	"fmt"
+	"github.com/gabriel-vasile/mimetype"
 	grpcHandler "github.com/koteyye/brutalITSM-BE-News/internal/grpc"
 	"github.com/koteyye/brutalITSM-BE-News/internal/models"
 	"github.com/koteyye/brutalITSM-BE-News/internal/postgres"
 	"github.com/minio/minio-go/v7"
 	"golang.org/x/exp/maps"
+	"io"
 )
 
 type NewsService struct {
@@ -19,9 +22,20 @@ func NewNewsService(repo postgres.News, s3repo *minio.Client, gHandler *grpcHand
 	return &NewsService{repo: repo, s3repo: s3repo, gHandler: gHandler}
 }
 
-func (n NewsService) CreateNews(news models.News) (string, error) {
-	//TODO implement me
-	panic("implement me")
+func (n NewsService) UploadFile(ctx context.Context, reader io.Reader, bucketName, fileName string, fileSize int64) (minio.UploadInfo, string, error) {
+	info, err := n.s3repo.PutObject(ctx, bucketName, fileName, reader, fileSize, minio.PutObjectOptions{})
+
+	if err != nil {
+		return minio.UploadInfo{}, "", err
+	}
+
+	mType, err := mimetype.DetectReader(reader)
+
+	return info, mType.String(), nil
+}
+
+func (n NewsService) CreateNews(news models.News, userId string) (string, error) {
+	return n.repo.CreateNews(news, userId)
 }
 
 func (n NewsService) UpdateNews(newsId string, news models.News) (string, error) {

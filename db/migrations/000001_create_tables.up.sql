@@ -4,11 +4,14 @@ create type news_state as enum ('draft', 'published', 'drop');
 
 create type like_object_type as enum ('news', 'comment');
 
+create type entities as enum ('previewImage', 'content', 'comment');
+
 create table files (
     id uuid default uuid_generate_v4() not null primary key ,
     mime_type varchar(256) not null,
     bucket_name varchar(512) not null,
     file_name varchar(1024) not null,
+    entity entities not null,
     created_at timestamp default now()             not null,
     updated_at timestamp default now(),
     deleted_at timestamp
@@ -22,7 +25,7 @@ create table news (
     title text not null,
     description text,
     preview_image uuid,
-    content_file uuid not null references files(id),
+    content_file uuid references files(id),
     user_created uuid not null,
     user_updated uuid not null,
     user_deleted uuid,

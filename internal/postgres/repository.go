@@ -6,11 +6,12 @@ import (
 )
 
 type News interface {
-	CreateNews(news models.News) (string, error)
+	CreateNews(news models.News, userId string) (string, error)
 	UpdateNews(newsId string, news models.News) (string, error)
 	DeleteNews(newsId string) (bool, error)
 	GetNewsList() ([]models.NewsList, error)
 	GetNewsById(newsId string) (models.NewsList, error)
+	UploadNewsFile(fileId string) (string, error)
 }
 
 type Repository struct {
