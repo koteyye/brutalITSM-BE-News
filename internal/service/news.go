@@ -38,9 +38,8 @@ func (n NewsService) CreateNews(news models.News, userId string) (string, error)
 	return n.repo.CreateNews(news, userId)
 }
 
-func (n NewsService) UpdateNews(newsId string, news models.News) (string, error) {
-	//TODO implement me
-	panic("implement me")
+func (n NewsService) UpdateNews(news models.News, userId string) (bool, error) {
+	return n.repo.UpdateNews(news, userId)
 }
 
 func (n NewsService) DeleteNews(newsId string) (bool, error) {

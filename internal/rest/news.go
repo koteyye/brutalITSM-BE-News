@@ -45,6 +45,31 @@ func (r *Rest) createNews(c *gin.Context) {
 	})
 }
 
+func (r *Rest) updateNews(c *gin.Context) {
+	userCtx, ok := c.Get("user")
+	if !ok {
+		newErrorResponse(c, http.StatusInternalServerError, "User not found in context")
+	}
+	user := userCtx.(models.UserSingle)
+
+	var input models.News
+
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	result, err := r.services.UpdateNews(input, user.Id)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"updateResult": result,
+	})
+}
+
 //func (r *Rest) uploadNewsFile(c *gin.Context) {
 //	multipartForm, err := c.MultipartForm()
 //	fileHeader := multipartForm.File

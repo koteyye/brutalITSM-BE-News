@@ -11,7 +11,7 @@ import (
 
 type News interface {
 	CreateNews(news models.News, userId string) (string, error)
-	UpdateNews(newsId string, news models.News) (string, error)
+	UpdateNews(news models.News, userId string) (bool, error)
 	DeleteNews(newsId string) (bool, error)
 	GetNewsList() ([]models.ResponseNewsList, error)
 	GetNewsById(newsId string) (models.NewsList, error)

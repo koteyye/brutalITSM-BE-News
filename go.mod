@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
+	github.com/gabriel-vasile/mimetype v1.4.2
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.0
 	github.com/golang-migrate/migrate/v4 v4.15.2

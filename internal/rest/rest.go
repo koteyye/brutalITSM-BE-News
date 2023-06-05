@@ -38,8 +38,8 @@ func (r *Rest) InitRoutes() *gin.Engine {
 		{
 			newsEditor.POST("/uploadNewsFile")
 			newsEditor.POST("/uploadNewsFile/:id")
-			newsEditor.POST("/createNews")
-			newsEditor.POST("/updateNews")
+			newsEditor.POST("/createNews", r.createNews)
+			newsEditor.POST("/updateNews", r.updateNews)
 			newsEditor.GET("/myNewsList")
 			newsEditor.GET("/myNews/:id")
 			newsEditor.DELETE("/deleteNews/:id")

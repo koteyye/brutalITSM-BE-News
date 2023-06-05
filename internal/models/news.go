@@ -30,11 +30,12 @@ func (nt NullTime) Value() (driver.Value, error) {
 }
 
 type News struct {
-	Id           string  `json:"-" db:"id"`
-	Title        string  `json:"title" binding:"required"`
-	Description  string  `json:"description"`
-	PreviewImage *string `json:"previewImage"`
-	ContentFile  *string `json:"contentFile"`
+	Id           string `json:"id" db:"id"`
+	Title        string `json:"title" binding:"required"`
+	Description  string `json:"description"`
+	PreviewImage string `json:"previewImage"`
+	ContentFile  string `json:"contentFile"`
+	State        string `json:"state"`
 }
 
 type FileInput struct {

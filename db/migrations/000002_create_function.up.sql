@@ -1,3 +1,4 @@
+
 create function getNewsList()
     returns table (id uuid, title text, description text, created_at timestamp, user_created uuid, updated_at timestamp, user_updated uuid, state news_state, previewImage json, contentFile json)
     language plpgsql
@@ -19,7 +20,7 @@ begin
         from news n
                  left join files pf on pf.id = n.preview_image
                  left join files pc on pc.id = n.content_file
-        where n.deleted_at is null;
+        where n.deleted_at is null and n.state = 'published';
 end;
 $$;
 
@@ -44,7 +45,7 @@ begin
         from news n
                  left join files pf on pf.id = n.preview_image
                  left join files pc on pc.id = n.content_file
-        where n.id = userId and n.deleted_at is null;
+        where n.id = userId and n.deleted_at is null and n.state = 'published';
 end;
 $$;
 

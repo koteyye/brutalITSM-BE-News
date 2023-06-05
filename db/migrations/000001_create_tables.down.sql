@@ -9,3 +9,5 @@ drop table files;
 drop type like_object_type;
 
 drop type news_state;
+
+drop type entities;
