@@ -20,7 +20,7 @@ begin
         from news n
                  left join files pf on pf.id = n.preview_image
                  left join files pc on pc.id = n.content_file
-        where n.deleted_at is null and n.state = 'published';
+        where n.deleted_at is null and n.state = 'published' and pf.deleted_at is null and pc.deleted_at is null;
 end;
 $$;
 
@@ -45,7 +45,7 @@ begin
         from news n
                  left join files pf on pf.id = n.preview_image
                  left join files pc on pc.id = n.content_file
-        where n.id = userId and n.deleted_at is null and n.state = 'published';
+        where n.id = userId and n.deleted_at is null and n.state = 'published' and pf.deleted_at is null and pc.deleted_at is null;
 end;
 $$;
 

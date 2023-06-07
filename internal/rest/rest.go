@@ -36,8 +36,7 @@ func (r *Rest) InitRoutes() *gin.Engine {
 		}
 		newsEditor := api.Group("/newsEditor", r.setNewsWrite, r.checkPermission)
 		{
-			newsEditor.POST("/uploadNewsFile")
-			newsEditor.POST("/uploadNewsFile/:id")
+			newsEditor.POST("/uploadNewsFile", r.uploadNewsFile)
 			newsEditor.POST("/createNews", r.createNews)
 			newsEditor.POST("/updateNews", r.updateNews)
 			newsEditor.GET("/myNewsList")

@@ -12,6 +12,10 @@ type News interface {
 	GetNewsList() ([]models.NewsList, error)
 	GetNewsById(newsId string) (models.NewsList, error)
 	UploadNewsFile(fileId string) (string, error)
+	GetNewsFile(newsId string, entity string) (models.FileInput, error)
+	CreateNewsFile(file models.UploadedFile, entity string) (string, error)
+	UpdateNewsRelation(newsId string, fileId string, entity string) (bool, error)
+	DeleteNewsFile(fileId string) (bool, error)
 }
 
 type Repository struct {

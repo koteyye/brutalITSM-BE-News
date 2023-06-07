@@ -1,15 +1,13 @@
 package service
 
 import (
-	"context"
+	"database/sql"
 	"fmt"
-	"github.com/gabriel-vasile/mimetype"
 	grpcHandler "github.com/koteyye/brutalITSM-BE-News/internal/grpc"
 	"github.com/koteyye/brutalITSM-BE-News/internal/models"
 	"github.com/koteyye/brutalITSM-BE-News/internal/postgres"
 	"github.com/minio/minio-go/v7"
 	"golang.org/x/exp/maps"
-	"io"
 )
 
 type NewsService struct {
@@ -18,20 +16,8 @@ type NewsService struct {
 	gHandler *grpcHandler.GrpcHandler
 }
 
-func NewNewsService(repo postgres.News, s3repo *minio.Client, gHandler *grpcHandler.GrpcHandler) *NewsService {
-	return &NewsService{repo: repo, s3repo: s3repo, gHandler: gHandler}
-}
-
-func (n NewsService) UploadFile(ctx context.Context, reader io.Reader, bucketName, fileName string, fileSize int64) (minio.UploadInfo, string, error) {
-	info, err := n.s3repo.PutObject(ctx, bucketName, fileName, reader, fileSize, minio.PutObjectOptions{})
-
-	if err != nil {
-		return minio.UploadInfo{}, "", err
-	}
-
-	mType, err := mimetype.DetectReader(reader)
-
-	return info, mType.String(), nil
+func NewNewsService(repo postgres.News, gHandler *grpcHandler.GrpcHandler) *NewsService {
+	return &NewsService{repo: repo, gHandler: gHandler}
 }
 
 func (n NewsService) CreateNews(news models.News, userId string) (string, error) {
@@ -40,6 +26,37 @@ func (n NewsService) CreateNews(news models.News, userId string) (string, error)
 
 func (n NewsService) UpdateNews(news models.News, userId string) (bool, error) {
 	return n.repo.UpdateNews(news, userId)
+}
+
+func (n NewsService) UpdateNewsFile(file models.UploadedFile, newsId string, entity string) (bool, error) {
+
+	s3File, err := n.repo.GetNewsFile(newsId, entity)
+	switch err {
+	case nil:
+		break
+	case sql.ErrNoRows:
+		return n.createNewsFileAndUpdateRelation(file, entity, newsId)
+	default:
+		return false, err
+	}
+
+	_, err2 := n.createNewsFileAndUpdateRelation(file, entity, newsId)
+	if err2 != nil {
+		return false, err2
+	}
+	return n.repo.DeleteNewsFile(s3File.Id)
+}
+
+func (n NewsService) createNewsFileAndUpdateRelation(file models.UploadedFile, entity string, newsId string) (bool, error) {
+	fileId, err := n.repo.CreateNewsFile(file, entity)
+	if err != nil {
+		return false, err
+	}
+	result, err2 := n.repo.UpdateNewsRelation(newsId, fileId, entity)
+	if err2 != nil {
+		return false, err2
+	}
+	return result, err2
 }
 
 func (n NewsService) DeleteNews(newsId string) (bool, error) {
